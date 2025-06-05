@@ -3,14 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Analisador de JSON</title>
+    <title>Analisador de JSON e Logs</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <button id="theme-toggle" class="theme-button">Alternar Tema</button>
     <div class="main-container">
-        <h1>Analisador e Validador de JSON</h1>
+        <h1>Analisador de JSON e Logs</h1>
+
+        <!-- Analisador de JSON -->
         <div class="section">
+            <h2>Analisador de JSON</h2>
+            <input id="json-input" type="file" accept=".json">
             <textarea id="json-textarea" placeholder="Cole aqui o JSON"></textarea>
             <button id="validate-json-button">Validar JSON</button>
             <button id="clear-json-button">Limpar</button>
@@ -18,6 +22,16 @@
             <h3>JSON Corrigido</h3>
             <pre id="json-corrected"></pre>
             <button id="copy-json-button">Copiar JSON Corrigido</button>
+        </div>
+
+        <!-- Analisador de Logs -->
+        <div class="section">
+            <h2>Analisador de Logs</h2>
+            <input id="logs-input" type="file" accept=".txt">
+            <textarea id="logs-textarea" placeholder="Cole aqui os Logs"></textarea>
+            <button id="analyze-logs-button">Analisar Logs</button>
+            <div id="logs-output"></div>
+            <button id="clear-logs-button">Limpar Logs</button>
         </div>
     </div>
     <script src="script.js"></script>

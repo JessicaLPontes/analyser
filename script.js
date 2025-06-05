@@ -1,14 +1,20 @@
 document.addEventListener("DOMContentLoaded", () => {
+    const body = document.body;
+    const themeToggle = document.getElementById("theme-toggle");
+
+    themeToggle.addEventListener("click", () => {
+        body.classList.toggle("dark-mode");
+        themeToggle.textContent = body.classList.contains("dark-mode") ? "Tema Claro" : "Tema Escuro";
+    });
+
     const jsonTextarea = document.getElementById("json-textarea");
     const jsonErrors = document.getElementById("json-errors");
     const jsonCorrected = document.getElementById("json-corrected");
     const copyButton = document.getElementById("copy-json-button");
 
-    // Botão para validar JSON
     document.getElementById("validate-json-button").addEventListener("click", () => {
         jsonErrors.innerHTML = ""; // Limpa erros
         jsonCorrected.textContent = ""; // Limpa JSON corrigido
-        copyButton.disabled = true; // Desativa botão copiar
 
         const originalText = jsonTextarea.value;
 
@@ -25,77 +31,97 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         jsonCorrected.textContent = jsonCorrigido;
-        if (jsonCorrigido !== "Não foi possível corrigir automaticamente o JSON.") {
-            copyButton.disabled = false; // Ativa botão copiar se houver JSON corrigido
+
+        // Valida o JSON corrigido
+        if (jsonCorrigido !== "Não foi possível corrigir automaticamente o JSON. Verifique a estrutura.") {
+            try {
+                JSON.parse(jsonCorrigido);
+                jsonErrors.innerHTML += `
+                    <div class="success">
+                        O JSON corrigido está válido!
+                    </div>
+                `;
+            } catch {
+                jsonErrors.innerHTML += `
+                    <div class="error">
+                        O JSON corrigido ainda contém erros. Verifique novamente.
+                    </div>
+                `;
+            }
         }
     });
 
-    // Botão para limpar conteúdo
     document.getElementById("clear-json-button").addEventListener("click", () => {
         jsonTextarea.value = "";
         jsonErrors.innerHTML = "";
         jsonCorrected.textContent = "";
-        copyButton.disabled = true; // Desativa botão copiar
     });
 
-    // Botão copiar JSON corrigido
     copyButton.addEventListener("click", () => {
         navigator.clipboard.writeText(jsonCorrected.textContent).then(() => {
             alert("JSON corrigido copiado para a área de transferência!");
         });
     });
 
-    /**
-     * Função para analisar JSON e listar erros
-     * @param {string} textoJSON
-     * @returns {Array<string>} Lista de erros encontrados
-     */
+    const logsTextarea = document.getElementById("logs-textarea");
+    const logsOutput = document.getElementById("logs-output");
+
+    document.getElementById("analyze-logs-button").addEventListener("click", () => {
+        logsOutput.innerHTML = ""; // Limpa saída anterior
+        const lines = logsTextarea.value.split("\n");
+
+        lines.forEach((line, index) => {
+            const div = document.createElement("div");
+            div.textContent = `${index + 1}: ${line}`;
+            if (/ERROR/.test(line)) {
+                div.textContent += " → Linha contém um erro crítico (ERROR).";
+                div.classList.add("error-highlight");
+            } else if (/WARN/.test(line)) {
+                div.textContent += " → Linha contém um aviso (WARN).";
+                div.classList.add("warn-highlight");
+            }
+            logsOutput.appendChild(div);
+        });
+    });
+
+    document.getElementById("clear-logs-button").addEventListener("click", () => {
+        logsTextarea.value = "";
+        logsOutput.innerHTML = "";
+    });
+
     function analisarJSON(textoJSON) {
         const erros = [];
-        const linhas = textoJSON.split("\n");
+        const regexChaves = /([a-zA-Z_$][\w$]*)\s*:/g;
+        const regexVirgulas = /,(\s*[}\]])/g;
 
-        linhas.forEach((linha, index) => {
-            // Verifica chaves sem aspas duplas
-            const regexChavesSemAspas = /([a-zA-Z_$][\w$]*)\s*:/g;
-            if (regexChavesSemAspas.test(linha)) {
-                erros.push(`Linha ${index + 1}: Chave "${linha.match(regexChavesSemAspas)[1]}" está sem aspas duplas.`);
+        textoJSON.split("\n").forEach((linha, index) => {
+            if (regexChaves.test(linha)) {
+                erros.push(`Linha ${index + 1}: Chave sem aspas.`);
             }
-
-            // Verifica vírgulas duplicadas ou ausentes
-            const regexVirgulasDuplicadas = /,(\s*[}\]])/g;
-            if (regexVirgulasDuplicadas.test(linha)) {
-                erros.push(`Linha ${index + 1}: Vírgula desnecessária encontrada.`);
+            if (regexVirgulas.test(linha)) {
+                erros.push(`Linha ${index + 1}: Vírgula desnecessária.`);
             }
         });
 
-        // Validação geral do JSON
         try {
             JSON.parse(textoJSON);
         } catch (e) {
-            const mensagemErro = e.message.match(/position (\d+)/)
-                ? `Erro geral no JSON perto da posição ${e.message.match(/position (\d+)/)[1]}.`
-                : "Erro geral no JSON. Verifique toda a estrutura.";
-            erros.push(mensagemErro);
+            erros.push("Erro geral: Verifique o JSON.");
         }
 
         return erros;
     }
 
-    /**
-     * Função para corrigir JSON
-     * @param {string} textoJSON
-     * @returns {string} JSON corrigido
-     */
     function corrigirJSON(textoJSON) {
         try {
             const corrigido = textoJSON
-                .replace(/([a-zA-Z_$][\w$]*)\s*:/g, '"$1":') // Corrige chaves sem aspas duplas
-                .replace(/,(\s*[}\]])/g, "$1"); // Remove vírgulas extras antes de } ou ]
+                .replace(/([a-zA-Z_$][\w$]*)\s*:/g, '"$1":')
+                .replace(/,(\s*[}\]])/g, "$1");
 
-            JSON.parse(corrigido); // Valida o JSON corrigido
+            JSON.parse(corrigido);
             return corrigido;
         } catch {
-            return "Não foi possível corrigir automaticamente o JSON.";
+            return "Não foi possível corrigir automaticamente o JSON. Verifique a estrutura.";
         }
     }
 });
