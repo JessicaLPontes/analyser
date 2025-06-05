@@ -1,34 +1,40 @@
 document.addEventListener("DOMContentLoaded", () => {
     const jsonTextarea = document.getElementById("json-textarea");
-    const jsonOutput = document.getElementById("json-output");
+    const jsonErrors = document.getElementById("json-errors");
+    const jsonCorrected = document.getElementById("json-corrected");
+    const copyButton = document.getElementById("copy-json-button");
 
     document.getElementById("validate-json-button").addEventListener("click", () => {
-        jsonOutput.innerHTML = ""; // Limpa saída anterior
+        jsonErrors.innerHTML = ""; // Limpa erros
+        jsonCorrected.textContent = ""; // Limpa JSON corrigido
         const originalText = jsonTextarea.value;
-        const lines = originalText.split("\n");
 
-        try {
-            JSON.parse(originalText);
-            jsonOutput.textContent = "O JSON está válido!";
-            jsonOutput.classList.remove("error");
-        } catch (e) {
-            const erros = analisarJSON(originalText);
-            const jsonCorrigido = corrigirJSON(originalText);
+        const erros = analisarJSON(originalText);
+        const jsonCorrigido = corrigirJSON(originalText);
 
-            jsonOutput.innerHTML = `
-                <div class="error">
+        if (erros.length > 0) {
+            jsonErrors.innerHTML = `
+                <div id="error-container">
                     <strong>O JSON apresenta os seguintes erros:</strong>
                     <ul>${erros.map(err => `<li>${err}</li>`).join("")}</ul>
                 </div>
-                <strong>JSON Corrigido:</strong>
-                <pre>${jsonCorrigido}</pre>
             `;
         }
+
+        jsonCorrected.textContent = jsonCorrigido;
     });
 
     document.getElementById("clear-json-button").addEventListener("click", () => {
         jsonTextarea.value = "";
-        jsonOutput.innerHTML = "";
+        jsonErrors.innerHTML = "";
+        jsonCorrected.textContent = "";
+    });
+
+    // Botão copiar JSON corrigido
+    copyButton.addEventListener("click", () => {
+        navigator.clipboard.writeText(jsonCorrected.textContent).then(() => {
+            alert("JSON corrigido copiado para a área de transferência!");
+        });
     });
 
     /**
@@ -38,20 +44,33 @@ document.addEventListener("DOMContentLoaded", () => {
      */
     function analisarJSON(textoJSON) {
         const erros = [];
-        const regexAspas = /(["'])\s*([^"\s]*?)\s*\1\s*:/g;
-        const regexVirgulas = /(,)(\s*[}\]])/g;
+        const linhas = textoJSON.split("\n");
 
-        // Verifica chaves sem aspas duplas
-        if (!regexAspas.test(textoJSON)) {
-            erros.push(`Uma ou mais chaves estão sem aspas duplas. Todas as chaves devem ser cercadas por aspas.`);
+        linhas.forEach((linha, index) => {
+            // Verifica chaves sem aspas duplas
+            const regexChavesSemAspas = /([a-zA-Z0-9_]+)\s*:/g;
+            if (regexChavesSemAspas.test(linha)) {
+                erros.push(`Linha ${index + 1}: Chave "${linha.match(regexChavesSemAspas)[1]}" está sem aspas duplas.`);
+            }
+
+            // Verifica vírgulas duplicadas ou ausentes
+            const regexVirgulasDuplicadas = /,(\s*[}\]])/g;
+            if (regexVirgulasDuplicadas.test(linha)) {
+                erros.push(`Linha ${index + 1}: Vírgula desnecessária encontrada.`);
+            }
+        });
+
+        // Validação geral do JSON
+        try {
+            JSON.parse(textoJSON);
+        } catch (e) {
+            const mensagemErro = e.message.match(/position (\d+)/)
+                ? `Erro geral no JSON perto da posição ${e.message.match(/position (\d+)/)[1]}.`
+                : "Erro geral no JSON. Verifique toda a estrutura.";
+            erros.push(mensagemErro);
         }
 
-        // Verifica vírgulas duplicadas ou ausentes
-        if (regexVirgulas.test(textoJSON)) {
-            erros.push(`Há elementos separados incorretamente por vírgulas.`);
-        }
-
-        return erros.length > 0 ? erros : ["Erro inesperado no JSON. Verifique a estrutura geral."];
+        return erros;
     }
 
     /**
@@ -62,7 +81,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function corrigirJSON(textoJSON) {
         try {
             const corrigido = textoJSON
-                .replace(/(['"])\s*([^"\s]*?)\s*\1\s*:/g, '"$2":') // Corrige chaves sem aspas duplas
+                .replace(/([a-zA-Z0-9_]+)\s*:/g, '"$1":') // Corrige chaves sem aspas duplas
                 .replace(/,(\s*[}\]])/g, "$1"); // Remove vírgulas extras antes de } ou ]
 
             JSON.parse(corrigido); // Valida o JSON corrigido

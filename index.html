@@ -3,32 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Conversor e Analisador de Dados</title>
+    <title>Analisador de JSON</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <button id="theme-toggle" class="theme-button">Alternar Tema</button>
     <div class="main-container">
-        <h1>Conversor e Analisador de Dados</h1>
-        <div class="sections">
-            <!-- Analisador de JSON -->
-            <div class="section">
-                <h2>Analisador de JSON</h2>
-                <input id="json-input" type="file" accept=".json">
-                <textarea id="json-textarea" placeholder="Cole aqui o JSON"></textarea>
-                <button id="validate-json-button">Validar JSON</button>
-                <pre id="json-output"></pre>
-                <button id="clear-json-button">Limpar JSON</button>
-            </div>
-            <!-- Analisador de Logs -->
-            <div class="section">
-                <h2>Analisador de Logs</h2>
-                <input id="logs-input" type="file" accept=".txt">
-                <textarea id="logs-textarea" placeholder="Cole aqui os Logs"></textarea>
-                <button id="analyze-logs-button">Analisar Logs</button>
-                <div id="logs-output"></div>
-                <button id="clear-logs-button">Limpar Logs</button>
-            </div>
+        <h1>Analisador e Validador de JSON</h1>
+        <div class="section">
+            <textarea id="json-textarea" placeholder="Cole aqui o JSON"></textarea>
+            <button id="validate-json-button">Validar JSON</button>
+            <button id="clear-json-button">Limpar</button>
+            <div id="json-errors"></div>
+            <h3>JSON Corrigido</h3>
+            <pre id="json-corrected"></pre>
+            <button id="copy-json-button">Copiar JSON Corrigido</button>
         </div>
     </div>
     <script src="script.js"></script>
