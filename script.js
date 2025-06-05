@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", function () {
-    // Seleciona os elementos
     const body = document.body;
     const themeToggle = document.getElementById("theme-toggle").querySelector("i");
 
@@ -29,118 +28,44 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     };
 
-    // Função para limpar os arquivos carregados
-    window.clearFiles = function () {
-        document.getElementById("insert-input").value = "";
-        document.getElementById("update-input").value = "";
-        document.getElementById("insert-sql-links").innerHTML = "";
-        document.getElementById("update-sql-links").innerHTML = "";
-    };
+    // Alternância entre seções
+    const jsonButton = document.getElementById("jsonButton");
+    const logsButton = document.getElementById("logsButton");
+    const jsonSection = document.getElementById("jsonSection");
+    const logsSection = document.getElementById("logsSection");
+
+    jsonButton.addEventListener("click", () => {
+        jsonSection.classList.remove("hidden");
+        logsSection.classList.add("hidden");
+    });
+
+    logsButton.addEventListener("click", () => {
+        logsSection.classList.remove("hidden");
+        jsonSection.classList.add("hidden");
+    });
+
+    // Validação de JSON
+    const validateJsonButton = document.getElementById("validateJson");
+    const jsonInput = document.getElementById("jsonInput");
+    const jsonOutput = document.getElementById("jsonOutput");
+
+    validateJsonButton.addEventListener("click", () => {
+        try {
+            const parsedJson = JSON.parse(jsonInput.value);
+            jsonOutput.textContent = JSON.stringify(parsedJson, null, 4);
+        } catch (error) {
+            jsonOutput.textContent = `Erro: JSON inválido.\n${error.message}`;
+        }
+    });
+
+    // Análise de Logs
+    const analyzeLogsButton = document.getElementById("analyzeLogs");
+    const logsInput = document.getElementById("logsInput");
+    const logsOutput = document.getElementById("logsOutput");
+
+    analyzeLogsButton.addEventListener("click", () => {
+        const logs = logsInput.value.split("\n");
+        const parsedLogs = logs.map((log, index) => `Linha ${index + 1}: ${log}`);
+        logsOutput.innerHTML = `<pre>${parsedLogs.join("\n")}</pre>`;
+    });
 });
-
-// Função para processar arquivos de INSERT e UPDATE
-function handleInsertFiles(event) {
-    processFiles(event, 'INSERT');
-}
-
-function handleUpdateFiles(event) {
-    processFiles(event, 'UPDATE');
-}
-
-function processFiles(event, mode) {
-    const files = event.target.files;
-
-    if (!files || files.length === 0) {
-        alert('Por favor, selecione pelo menos um arquivo.');
-        return;
-    }
-
-    const sqlLinksContainer = document.getElementById(
-        mode === 'INSERT' ? 'insert-sql-links' : 'update-sql-links'
-    );
-    sqlLinksContainer.innerHTML = '';
-
-    const processingMsg = document.createElement('p');
-    processingMsg.innerText = `Processando arquivos para ${mode}...`;
-    processingMsg.classList.add('processing');
-    sqlLinksContainer.appendChild(processingMsg);
-
-    for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        const reader = new FileReader();
-
-        reader.onload = function(event) {
-            try {
-                const data = new Uint8Array(event.target.result);
-                const workbook = XLSX.read(data, { type: 'array' });
-
-                workbook.SheetNames.forEach(sheetName => {
-                    const sheet = workbook.Sheets[sheetName];
-                    const tableName = sheetName.replace(/\s+/g, '_');
-                    const jsonData = XLSX.utils.sheet_to_json(sheet, { raw: false });
-
-                    if (jsonData.length === 0) {
-                        throw new Error('A planilha está vazia.');
-                    }
-
-                    const columns = Object.keys(jsonData[0]);
-                    const sqlCommands = jsonData.map(row => {
-                        return mode === 'INSERT' 
-                            ? generateInsertSQL(tableName, columns, row) 
-                            : generateUpdateSQL(tableName, columns, row);
-                    }).join('\n');
-
-                    const blob = new Blob([sqlCommands], { type: 'text/plain' });
-                    const link = document.createElement('a');
-                    link.href = URL.createObjectURL(blob);
-                    link.download = `${tableName}_${mode}.sql`;
-                    link.innerText = `Download ${tableName}_${mode}.sql`;
-                    link.classList.add('sql-link');
-                    sqlLinksContainer.appendChild(link);
-                });
-
-                sqlLinksContainer.removeChild(processingMsg);
-            } catch (error) {
-                console.error(`Erro ao processar arquivo para ${mode}:`, error);
-                sqlLinksContainer.removeChild(processingMsg);
-                const errorMsg = document.createElement('p');
-                errorMsg.innerText = `Erro ao processar arquivo para ${mode}: ${file.name}`;
-                errorMsg.classList.add('error');
-                sqlLinksContainer.appendChild(errorMsg);
-            }
-        };
-
-        reader.readAsArrayBuffer(file);
-    }
-}
-
-// Função para gerar comando SQL INSERT com todos os valores entre aspas
-function generateInsertSQL(tableName, columns, row) {
-    const values = columns.map(column => formatValue(row[column])).join(', ');
-    return `INSERT INTO ${tableName} (${columns.join(', ')}) VALUES (${values});`;
-}
-
-// Função para gerar comando SQL UPDATE com todos os valores entre aspas
-function generateUpdateSQL(tableName, columns, row) {
-    const keyColumn = columns[0]; // Primeira coluna do Excel como chave
-    const keyValue = row[keyColumn]?.toString().trim();
-
-    if (!keyValue) {
-        throw new Error(`A coluna-chave "${keyColumn}" está vazia para algum registro.`);
-    }
-
-    const setClauses = columns.slice(1).map(column => `${column} = ${formatValue(row[column])}`).join(', ');
-    const whereClause = `${keyColumn} = ${formatValue(row[keyColumn])}`;
-
-    return `UPDATE ${tableName} SET ${setClauses} WHERE ${whereClause};`;
-}
-
-// Função para formatar valores corretamente (todos os valores com aspas, incluindo números)
-function formatValue(value) {
-    if (value === undefined || value === null || value.toString().trim() === '') {
-        return 'NULL';
-    }
-
-    // Aqui, até os números são convertidos para string e envolvidos por aspas
-    return `'${value.toString().trim().replace(/'/g, "''")}'`;
-}
