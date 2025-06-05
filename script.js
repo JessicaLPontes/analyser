@@ -33,8 +33,14 @@ document.addEventListener("DOMContentLoaded", () => {
             jsonOutput.textContent = "O JSON está válido!";
             jsonOutput.classList.remove("error");
         } catch (e) {
-            const errorMessage = traduzirErroJSON(e.message, lines);
-            jsonOutput.innerHTML = `<div class="error">${errorMessage}</div>`;
+            const { linha, coluna, descricao } = traduzirErroJSON(e.message, lines);
+            jsonOutput.innerHTML = `
+                <div class="error">
+                    <strong>Erro encontrado:</strong> ${descricao}<br>
+                    <strong>Linha:</strong> ${linha}, <strong>Coluna:</strong> ${coluna}
+                </div>
+                <pre>${destacarErroJSON(lines, linha, coluna)}</pre>
+            `;
         }
     });
 
@@ -43,60 +49,18 @@ document.addEventListener("DOMContentLoaded", () => {
         jsonOutput.innerHTML = "";
     });
 
-    // Logs Analysis
-    const logsInput = document.getElementById("logs-input");
-    const logsTextarea = document.getElementById("logs-textarea");
-    const logsOutput = document.getElementById("logs-output");
-
-    logsInput.addEventListener("change", (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = () => {
-                logsTextarea.value = reader.result;
-            };
-            reader.readAsText(file);
-        }
-        logsInput.value = ""; // Limpar input
-    });
-
-    document.getElementById("analyze-logs-button").addEventListener("click", () => {
-        logsOutput.innerHTML = ""; // Limpa saída anterior
-        const lines = logsTextarea.value.split("\n").filter(Boolean);
-        lines.forEach((line, index) => {
-            const div = document.createElement("div");
-            div.textContent = `${index + 1}: ${line}`;
-            if (/ERROR/.test(line)) {
-                div.textContent += " → Linha contém um erro crítico (ERROR).";
-                div.classList.add("error");
-            } else if (/WARN/.test(line)) {
-                div.textContent += " → Linha contém um aviso (WARN).";
-                div.classList.add("warn");
-            }
-            logsOutput.appendChild(div);
-        });
-    });
-
-    document.getElementById("clear-logs-button").addEventListener("click", () => {
-        logsTextarea.value = "";
-        logsOutput.innerHTML = "";
-    });
-
     // Função para traduzir e detalhar o erro do JSON
     function traduzirErroJSON(mensagem, linhas) {
-        if (mensagem.includes("Unexpected token")) {
-            return `Erro: Token inesperado encontrado. Verifique a estrutura na linha correspondente.`;
-        } else if (mensagem.includes("Unexpected end of JSON input")) {
-            return `Erro: Final inesperado do JSON. Certifique-se de fechar todas as chaves e colchetes.`;
-        } else if (mensagem.includes("position")) {
-            const match = mensagem.match(/position (\d+)/);
-            if (match) {
-                const position = parseInt(match[1]);
-                const linha = encontrarLinhaErro(position, linhas);
-                return `Erro: Estrutura inválida detectada na linha ${linha}. Revise a sintaxe.`;
-            }
-        }
-        return `Erro desconhecido: ${mensagem}`;
+        const match = mensagem.match(/Unexpected token (\S+) in JSON at position (\d+)/);
+        const descricao = match
+            ? `Token inesperado "${match[1]}". Verifique a sintaxe na linha correspondente.`
+            : `Erro inesperado. Certifique-se de que o JSON está bem formatado.`;
+
+        const posicao = match ? parseInt(match[2], 10) : 0;
+        const linha = encontrarLinhaErro(posicao, linhas);
+        const coluna = encontrarColunaErro(posicao, linhas);
+
+        return { linha, coluna, descricao };
     }
 
     // Função para localizar a linha do erro com base na posição
@@ -109,5 +73,32 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
         return "desconhecida";
+    }
+
+    // Função para localizar a coluna do erro
+    function encontrarColunaErro(posicao, linhas) {
+        let acumulador = 0;
+        for (let i = 0; i < linhas.length; i++) {
+            const linhaLength = linhas[i].length + 1; // +1 para quebra de linha
+            if (acumulador + linhaLength > posicao) {
+                return posicao - acumulador + 1;
+            }
+            acumulador += linhaLength;
+        }
+        return "desconhecida";
+    }
+
+    // Função para destacar a linha do erro
+    function destacarErroJSON(linhas, linhaErro, colunaErro) {
+        return linhas
+            .map((linha, index) => {
+                if (index + 1 === linhaErro) {
+                    return linha.slice(0, colunaErro - 1) +
+                        `<span class="error-highlight">${linha[colunaErro - 1]}</span>` +
+                        linha.slice(colunaErro);
+                }
+                return linha;
+            })
+            .join("\n");
     }
 });

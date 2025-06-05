@@ -63,10 +63,10 @@ pre {
     font-size: 14px;
 }
 
-.error {
-    background-color: #ffecec;
-    border: 1px solid #f5c6cb;
-    color: #721c24;
+.error-highlight {
+    background-color: #ffcccc;
+    color: #b30000;
+    font-weight: bold;
 }
 
 button {
@@ -80,4 +80,12 @@ button {
 
 button:hover {
     background-color: #45a049;
+}
+
+.error {
+    background-color: #ffecec;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+    padding: 10px;
+    margin-bottom: 10px;
 }
