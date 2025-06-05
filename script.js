@@ -8,60 +8,43 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // JSON Analysis
-    const jsonInput = document.getElementById("json-input");
     const jsonTextarea = document.getElementById("json-textarea");
     const jsonOutput = document.getElementById("json-output");
-    const clearJsonButton = document.getElementById("clear-json-button");
-
-    jsonInput.addEventListener("change", (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = () => {
-                jsonTextarea.value = reader.result;
-            };
-            reader.readAsText(file);
-        }
-        jsonInput.value = "";
-    });
 
     document.getElementById("validate-json-button").addEventListener("click", () => {
+        jsonOutput.innerHTML = ""; // Limpa saída anterior
+        const lines = jsonTextarea.value.split("\n");
         try {
             const parsed = JSON.parse(jsonTextarea.value);
             jsonOutput.textContent = JSON.stringify(parsed, null, 2);
             jsonOutput.classList.remove("error");
         } catch (e) {
-            jsonOutput.textContent = `Erro: ${e.message}`;
             jsonOutput.classList.add("error");
+            lines.forEach((line, index) => {
+                const div = document.createElement("div");
+                div.textContent = `${index + 1}: ${line}`;
+                if (line.includes(e.message.split(" ")[1])) {
+                    div.style.backgroundColor = "#ffecec";
+                    div.style.color = "#721c24";
+                }
+                jsonOutput.appendChild(div);
+            });
+            jsonOutput.append(`Erro: ${e.message}`);
         }
     });
 
-    clearJsonButton.addEventListener("click", () => {
+    document.getElementById("clear-json-button").addEventListener("click", () => {
         jsonTextarea.value = "";
         jsonOutput.textContent = "";
     });
 
-    // Log Analysis
-    const logsInput = document.getElementById("logs-input");
+    // Logs Analysis
     const logsTextarea = document.getElementById("logs-textarea");
     const logsOutput = document.getElementById("logs-output");
-    const clearLogsButton = document.getElementById("clear-logs-button");
-
-    logsInput.addEventListener("change", (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = () => {
-                logsTextarea.value = reader.result;
-            };
-            reader.readAsText(file);
-        }
-        logsInput.value = "";
-    });
 
     document.getElementById("analyze-logs-button").addEventListener("click", () => {
-        const lines = logsTextarea.value.split("\n").filter(Boolean);
-        logsOutput.innerHTML = "";
+        const lines = logsTextarea.value.split("\n");
+        logsOutput.innerHTML = ""; // Limpa saída anterior
         lines.forEach((line, index) => {
             const div = document.createElement("div");
             div.textContent = `${index + 1}: ${line}`;
@@ -72,7 +55,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    clearLogsButton.addEventListener("click", () => {
+    document.getElementById("clear-logs-button").addEventListener("click", () => {
         logsTextarea.value = "";
         logsOutput.innerHTML = "";
     });

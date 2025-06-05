@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,21 +10,25 @@
     <button id="theme-toggle" class="theme-button">Alternar Tema</button>
     <div class="main-container">
         <h1>Conversor e Analisador de Dados</h1>
-        <div class="section">
-            <h2>Analisador de JSON</h2>
-            <input id="json-input" type="file" accept=".json">
-            <textarea id="json-textarea" placeholder="Cole aqui o JSON"></textarea>
-            <button id="validate-json-button">Validar JSON</button>
-            <pre id="json-output"></pre>
-            <button id="clear-json-button">Limpar JSON</button>
-        </div>
-        <div class="section">
-            <h2>Analisador de Logs</h2>
-            <input id="logs-input" type="file" accept=".txt">
-            <textarea id="logs-textarea" placeholder="Cole aqui os Logs"></textarea>
-            <button id="analyze-logs-button">Analisar Logs</button>
-            <div id="logs-output"></div>
-            <button id="clear-logs-button">Limpar Logs</button>
+        <div class="sections">
+            <!-- Analisador de JSON -->
+            <div class="section">
+                <h2>Analisador de JSON</h2>
+                <input id="json-input" type="file" accept=".json">
+                <textarea id="json-textarea" placeholder="Cole aqui o JSON"></textarea>
+                <button id="validate-json-button">Validar JSON</button>
+                <pre id="json-output"></pre>
+                <button id="clear-json-button">Limpar JSON</button>
+            </div>
+            <!-- Analisador de Logs -->
+            <div class="section">
+                <h2>Analisador de Logs</h2>
+                <input id="logs-input" type="file" accept=".txt">
+                <textarea id="logs-textarea" placeholder="Cole aqui os Logs"></textarea>
+                <button id="analyze-logs-button">Analisar Logs</button>
+                <div id="logs-output"></div>
+                <button id="clear-logs-button">Limpar Logs</button>
+            </div>
         </div>
     </div>
     <script src="script.js"></script>
