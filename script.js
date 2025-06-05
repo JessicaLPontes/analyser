@@ -29,13 +29,12 @@ document.addEventListener("DOMContentLoaded", () => {
         jsonOutput.innerHTML = ""; // Limpa saída anterior
         const lines = jsonTextarea.value.split("\n");
         try {
-            const parsed = JSON.parse(jsonTextarea.value);
-            jsonOutput.textContent = "JSON válido!";
+            JSON.parse(jsonTextarea.value);
+            jsonOutput.textContent = "O JSON está válido!";
             jsonOutput.classList.remove("error");
         } catch (e) {
-            const errorLine = e.message.match(/position (\d+)/);
-            const lineNumber = errorLine ? Math.ceil(errorLine[1] / jsonTextarea.cols) : "desconhecida";
-            jsonOutput.innerHTML = `<div class="error">Erro na linha ${lineNumber}: ${e.message}</div>`;
+            const errorMessage = traduzirErroJSON(e.message, lines);
+            jsonOutput.innerHTML = `<div class="error">${errorMessage}</div>`;
         }
     });
 
@@ -67,8 +66,12 @@ document.addEventListener("DOMContentLoaded", () => {
         lines.forEach((line, index) => {
             const div = document.createElement("div");
             div.textContent = `${index + 1}: ${line}`;
-            if (/ERROR|WARN/.test(line)) {
+            if (/ERROR/.test(line)) {
+                div.textContent += " → Linha contém um erro crítico (ERROR).";
                 div.classList.add("error");
+            } else if (/WARN/.test(line)) {
+                div.textContent += " → Linha contém um aviso (WARN).";
+                div.classList.add("warn");
             }
             logsOutput.appendChild(div);
         });
@@ -78,4 +81,33 @@ document.addEventListener("DOMContentLoaded", () => {
         logsTextarea.value = "";
         logsOutput.innerHTML = "";
     });
+
+    // Função para traduzir e detalhar o erro do JSON
+    function traduzirErroJSON(mensagem, linhas) {
+        if (mensagem.includes("Unexpected token")) {
+            return `Erro: Token inesperado encontrado. Verifique a estrutura na linha correspondente.`;
+        } else if (mensagem.includes("Unexpected end of JSON input")) {
+            return `Erro: Final inesperado do JSON. Certifique-se de fechar todas as chaves e colchetes.`;
+        } else if (mensagem.includes("position")) {
+            const match = mensagem.match(/position (\d+)/);
+            if (match) {
+                const position = parseInt(match[1]);
+                const linha = encontrarLinhaErro(position, linhas);
+                return `Erro: Estrutura inválida detectada na linha ${linha}. Revise a sintaxe.`;
+            }
+        }
+        return `Erro desconhecido: ${mensagem}`;
+    }
+
+    // Função para localizar a linha do erro com base na posição
+    function encontrarLinhaErro(posicao, linhas) {
+        let acumulador = 0;
+        for (let i = 0; i < linhas.length; i++) {
+            acumulador += linhas[i].length + 1; // +1 para considerar a quebra de linha
+            if (acumulador >= posicao) {
+                return i + 1; // Linha encontrada
+            }
+        }
+        return "desconhecida";
+    }
 });
