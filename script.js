@@ -1,64 +1,75 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const themeToggle = document.getElementById("theme-toggle").querySelector("i");
+    // Alternar tema
+    const body = document.body;
+    const themeToggle = document.getElementById("theme-toggle");
 
     if (localStorage.getItem("theme") === "dark") {
-        document.body.classList.add("dark-mode");
-        themeToggle.classList.replace("fa-sun", "fa-moon");
+        body.classList.add("dark-mode");
     }
 
     window.toggleTheme = function () {
-        document.body.classList.toggle("dark-mode");
-        const isDark = document.body.classList.contains("dark-mode");
-        localStorage.setItem("theme", isDark ? "dark" : "light");
-        themeToggle.classList.toggle("fa-sun");
-        themeToggle.classList.toggle("fa-moon");
+        body.classList.toggle("dark-mode");
+        localStorage.setItem("theme", body.classList.contains("dark-mode") ? "dark" : "light");
     };
 });
 
+// JSON
 function handleJsonFile(event) {
     const file = event.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = () => {
-            document.getElementById("json-textarea").value = reader.result;
-        };
-        reader.readAsText(file);
-    }
+    const reader = new FileReader();
+    reader.onload = () => {
+        document.getElementById("json-textarea").value = reader.result;
+    };
+    reader.readAsText(file);
+    event.target.value = ""; // Limpa o input
 }
 
 function validateJson() {
-    const input = document.getElementById("json-textarea").value;
+    const textarea = document.getElementById("json-textarea");
+    const output = document.getElementById("json-output");
     try {
-        const parsed = JSON.parse(input);
-        document.getElementById("json-output").innerText = JSON.stringify(parsed, null, 2);
-    } catch (error) {
-        document.getElementById("json-output").innerText = "JSON inválido: " + error.message;
+        const json = JSON.parse(textarea.value);
+        output.innerText = JSON.stringify(json, null, 2);
+        output.classList.remove("error");
+    } catch (e) {
+        output.innerText = `Erro: ${e.message}`;
+        output.classList.add("error");
     }
 }
 
+function clearJson() {
+    document.getElementById("json-textarea").value = "";
+    document.getElementById("json-output").innerText = "";
+}
+
+// Logs
 function handleLogFile(event) {
     const file = event.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = () => {
-            document.getElementById("logs-textarea").value = reader.result;
-        };
-        reader.readAsText(file);
-    }
+    const reader = new FileReader();
+    reader.onload = () => {
+        document.getElementById("logs-textarea").value = reader.result;
+    };
+    reader.readAsText(file);
+    event.target.value = ""; // Limpa o input
 }
 
 function analyzeLogs() {
-    const input = document.getElementById("logs-textarea").value;
-    const lines = input.split("\n").filter(line => line.trim() !== "");
-    const logStats = lines.reduce((acc, line) => {
-        const level = line.match(/INFO|ERROR|WARN|DEBUG/);
-        if (level) {
-            acc[level[0]] = (acc[level[0]] || 0) + 1;
+    const textarea = document.getElementById("logs-textarea");
+    const output = document.getElementById("logs-output");
+    const lines = textarea.value.split("\n");
+    output.innerHTML = ""; // Limpa o output anterior
+
+    lines.forEach((line, index) => {
+        const div = document.createElement("div");
+        div.textContent = `${index + 1}: ${line}`;
+        if (/ERROR|WARN/.test(line)) {
+            div.classList.add("error");
         }
-        return acc;
-    }, {});
-    const output = Object.entries(logStats)
-        .map(([level, count]) => `${level}: ${count}`)
-        .join("\n");
-    document.getElementById("logs-output").innerText = output || "Nenhum padrão reconhecido.";
+        output.appendChild(div);
+    });
+}
+
+function clearLogs() {
+    document.getElementById("logs-textarea").value = "";
+    document.getElementById("logs-output").innerHTML = "";
 }
