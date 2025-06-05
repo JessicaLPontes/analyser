@@ -1,71 +1,64 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const body = document.body;
     const themeToggle = document.getElementById("theme-toggle").querySelector("i");
 
-    // Aplicar o tema salvo no LocalStorage ao carregar a página
     if (localStorage.getItem("theme") === "dark") {
-        body.classList.add("dark-mode");
-        themeToggle.classList.remove("fa-sun");
-        themeToggle.classList.add("fa-moon");
-    } else {
-        body.classList.remove("dark-mode");
-        themeToggle.classList.remove("fa-moon");
-        themeToggle.classList.add("fa-sun");
+        document.body.classList.add("dark-mode");
+        themeToggle.classList.replace("fa-sun", "fa-moon");
     }
 
-    // Função para alternar entre modo escuro e claro
     window.toggleTheme = function () {
-        body.classList.toggle("dark-mode");
-
-        if (body.classList.contains("dark-mode")) {
-            localStorage.setItem("theme", "dark");
-            themeToggle.classList.remove("fa-sun");
-            themeToggle.classList.add("fa-moon");
-        } else {
-            localStorage.setItem("theme", "light");
-            themeToggle.classList.remove("fa-moon");
-            themeToggle.classList.add("fa-sun");
-        }
+        document.body.classList.toggle("dark-mode");
+        const isDark = document.body.classList.contains("dark-mode");
+        localStorage.setItem("theme", isDark ? "dark" : "light");
+        themeToggle.classList.toggle("fa-sun");
+        themeToggle.classList.toggle("fa-moon");
     };
-
-    // Alternância entre seções
-    const jsonButton = document.getElementById("jsonButton");
-    const logsButton = document.getElementById("logsButton");
-    const jsonSection = document.getElementById("jsonSection");
-    const logsSection = document.getElementById("logsSection");
-
-    jsonButton.addEventListener("click", () => {
-        jsonSection.classList.remove("hidden");
-        logsSection.classList.add("hidden");
-    });
-
-    logsButton.addEventListener("click", () => {
-        logsSection.classList.remove("hidden");
-        jsonSection.classList.add("hidden");
-    });
-
-    // Validação de JSON
-    const validateJsonButton = document.getElementById("validateJson");
-    const jsonInput = document.getElementById("jsonInput");
-    const jsonOutput = document.getElementById("jsonOutput");
-
-    validateJsonButton.addEventListener("click", () => {
-        try {
-            const parsedJson = JSON.parse(jsonInput.value);
-            jsonOutput.textContent = JSON.stringify(parsedJson, null, 4);
-        } catch (error) {
-            jsonOutput.textContent = `Erro: JSON inválido.\n${error.message}`;
-        }
-    });
-
-    // Análise de Logs
-    const analyzeLogsButton = document.getElementById("analyzeLogs");
-    const logsInput = document.getElementById("logsInput");
-    const logsOutput = document.getElementById("logsOutput");
-
-    analyzeLogsButton.addEventListener("click", () => {
-        const logs = logsInput.value.split("\n");
-        const parsedLogs = logs.map((log, index) => `Linha ${index + 1}: ${log}`);
-        logsOutput.innerHTML = `<pre>${parsedLogs.join("\n")}</pre>`;
-    });
 });
+
+function handleJsonFile(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = () => {
+            document.getElementById("json-textarea").value = reader.result;
+        };
+        reader.readAsText(file);
+    }
+}
+
+function validateJson() {
+    const input = document.getElementById("json-textarea").value;
+    try {
+        const parsed = JSON.parse(input);
+        document.getElementById("json-output").innerText = JSON.stringify(parsed, null, 2);
+    } catch (error) {
+        document.getElementById("json-output").innerText = "JSON inválido: " + error.message;
+    }
+}
+
+function handleLogFile(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = () => {
+            document.getElementById("logs-textarea").value = reader.result;
+        };
+        reader.readAsText(file);
+    }
+}
+
+function analyzeLogs() {
+    const input = document.getElementById("logs-textarea").value;
+    const lines = input.split("\n").filter(line => line.trim() !== "");
+    const logStats = lines.reduce((acc, line) => {
+        const level = line.match(/INFO|ERROR|WARN|DEBUG/);
+        if (level) {
+            acc[level[0]] = (acc[level[0]] || 0) + 1;
+        }
+        return acc;
+    }, {});
+    const output = Object.entries(logStats)
+        .map(([level, count]) => `${level}: ${count}`)
+        .join("\n");
+    document.getElementById("logs-output").innerText = output || "Nenhum padrão reconhecido.";
+}
