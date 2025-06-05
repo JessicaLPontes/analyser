@@ -12,6 +12,17 @@ document.addEventListener("DOMContentLoaded", () => {
     const jsonCorrected = document.getElementById("json-corrected");
     const copyButton = document.getElementById("copy-json-button");
 
+    document.getElementById("json-input").addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = () => {
+                jsonTextarea.value = reader.result;
+            };
+            reader.readAsText(file);
+        }
+    });
+
     document.getElementById("validate-json-button").addEventListener("click", () => {
         jsonErrors.innerHTML = ""; // Limpa erros
         jsonCorrected.textContent = ""; // Limpa JSON corrigido
@@ -31,62 +42,12 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         jsonCorrected.textContent = jsonCorrigido;
-
-        // Valida o JSON corrigido
-        if (jsonCorrigido !== "Não foi possível corrigir automaticamente o JSON. Verifique a estrutura.") {
-            try {
-                JSON.parse(jsonCorrigido);
-                jsonErrors.innerHTML += `
-                    <div class="success">
-                        O JSON corrigido está válido!
-                    </div>
-                `;
-            } catch {
-                jsonErrors.innerHTML += `
-                    <div class="error">
-                        O JSON corrigido ainda contém erros. Verifique novamente.
-                    </div>
-                `;
-            }
-        }
-    });
-
-    document.getElementById("clear-json-button").addEventListener("click", () => {
-        jsonTextarea.value = "";
-        jsonErrors.innerHTML = "";
-        jsonCorrected.textContent = "";
     });
 
     copyButton.addEventListener("click", () => {
         navigator.clipboard.writeText(jsonCorrected.textContent).then(() => {
             alert("JSON corrigido copiado para a área de transferência!");
         });
-    });
-
-    const logsTextarea = document.getElementById("logs-textarea");
-    const logsOutput = document.getElementById("logs-output");
-
-    document.getElementById("analyze-logs-button").addEventListener("click", () => {
-        logsOutput.innerHTML = ""; // Limpa saída anterior
-        const lines = logsTextarea.value.split("\n");
-
-        lines.forEach((line, index) => {
-            const div = document.createElement("div");
-            div.textContent = `${index + 1}: ${line}`;
-            if (/ERROR/.test(line)) {
-                div.textContent += " → Linha contém um erro crítico (ERROR).";
-                div.classList.add("error-highlight");
-            } else if (/WARN/.test(line)) {
-                div.textContent += " → Linha contém um aviso (WARN).";
-                div.classList.add("warn-highlight");
-            }
-            logsOutput.appendChild(div);
-        });
-    });
-
-    document.getElementById("clear-logs-button").addEventListener("click", () => {
-        logsTextarea.value = "";
-        logsOutput.innerHTML = "";
     });
 
     function analisarJSON(textoJSON) {
