@@ -4,9 +4,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const jsonCorrected = document.getElementById("json-corrected");
     const copyButton = document.getElementById("copy-json-button");
 
+    // Botão para validar JSON
     document.getElementById("validate-json-button").addEventListener("click", () => {
         jsonErrors.innerHTML = ""; // Limpa erros
         jsonCorrected.textContent = ""; // Limpa JSON corrigido
+        copyButton.disabled = true; // Desativa botão copiar
+
         const originalText = jsonTextarea.value;
 
         const erros = analisarJSON(originalText);
@@ -22,12 +25,17 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         jsonCorrected.textContent = jsonCorrigido;
+        if (jsonCorrigido !== "Não foi possível corrigir automaticamente o JSON.") {
+            copyButton.disabled = false; // Ativa botão copiar se houver JSON corrigido
+        }
     });
 
+    // Botão para limpar conteúdo
     document.getElementById("clear-json-button").addEventListener("click", () => {
         jsonTextarea.value = "";
         jsonErrors.innerHTML = "";
         jsonCorrected.textContent = "";
+        copyButton.disabled = true; // Desativa botão copiar
     });
 
     // Botão copiar JSON corrigido
@@ -48,7 +56,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         linhas.forEach((linha, index) => {
             // Verifica chaves sem aspas duplas
-            const regexChavesSemAspas = /([a-zA-Z0-9_]+)\s*:/g;
+            const regexChavesSemAspas = /([a-zA-Z_$][\w$]*)\s*:/g;
             if (regexChavesSemAspas.test(linha)) {
                 erros.push(`Linha ${index + 1}: Chave "${linha.match(regexChavesSemAspas)[1]}" está sem aspas duplas.`);
             }
@@ -81,7 +89,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function corrigirJSON(textoJSON) {
         try {
             const corrigido = textoJSON
-                .replace(/([a-zA-Z0-9_]+)\s*:/g, '"$1":') // Corrige chaves sem aspas duplas
+                .replace(/([a-zA-Z_$][\w$]*)\s*:/g, '"$1":') // Corrige chaves sem aspas duplas
                 .replace(/,(\s*[}\]])/g, "$1"); // Remove vírgulas extras antes de } ou ]
 
             JSON.parse(corrigido); // Valida o JSON corrigido
