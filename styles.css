@@ -1,0 +1,187 @@
+/* Corpo da página */
+body {
+    font-family: Andale Mono, monospace;
+    margin: 0;
+    padding: 0;
+    background-color: #ffffff;
+    color: #333333;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 100vh;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Modo escuro */
+body.dark-mode {
+    background-color: #1e1e1e;
+    color: #e4e4e4;
+}
+
+/* Botão alternar tema */
+#theme-toggle {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 10px;
+    font-size: 20px;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    color: #333333;
+    transition: color 0.3s ease;
+}
+
+/* Botão alternar tema no modo escuro */
+body.dark-mode #theme-toggle {
+    color: #e4e4e4;
+}
+
+#theme-toggle:hover {
+    transform: scale(1.1);
+}
+
+/* Layout principal */
+.main-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+    max-width: 800px;
+}
+
+/* Logo */
+#logo {
+    width: 150px;
+    height: auto;
+    margin-bottom: 20px;
+}
+
+/* Título */
+h1 {
+    margin: 0;
+    color: #0056b3;
+    text-align: center;
+    margin-bottom: 20px;
+    transition: color 0.3s ease;
+}
+
+/* Título no modo escuro */
+body.dark-mode h1 {
+    color: #58a6ff;
+}
+
+/* Botões */
+.file-button, #clear-button {
+    padding: 15px 20px;
+    font-size: 18px;
+    border: outset;
+    background-color: #6c757d;
+    color: #ffffff;
+    cursor: pointer;
+    outline: none;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    text-align: center;
+    margin: 10px;
+}
+
+.file-button:hover, #clear-button:hover {
+    background-color: #495057;
+}
+
+.file-button:active, #clear-button:active {
+    background-color: #343a40;
+}
+
+/* Botão limpar */
+#clear-button {
+    background-color: #6e70fa;
+    border-radius: 5px;
+}
+
+#clear-button:hover {
+    background-color: #373afa;
+}
+
+/* Links para SQL */
+.sql-links-container {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: 20px;
+}
+
+.sql-links {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+    overflow-y: auto;
+    max-height: 500px;
+}
+
+.sql-link {
+    display: block;
+    margin-top: 10px;
+    text-decoration: none;
+    color: #0056b3;
+    font-weight: bold;
+    transition: color 0.3s ease;
+    word-wrap: break-word;
+}
+
+.sql-link:hover {
+    color: #004085;
+}
+
+/* Links no modo escuro */
+body.dark-mode .sql-link {
+    color: #58a6ff;
+}
+
+body.dark-mode .sql-link:hover {
+    color: #1e90ff;
+}
+
+/* Rodapé */
+.footer {
+    text-align: center;
+    padding: 10px;
+    font-size: 14px;
+    color: #6a737d;
+    background-color: #f6f8fa;
+    border-top: 1px solid #e1e4e8;
+    width: 100%;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Rodapé no modo escuro */
+body.dark-mode .footer {
+    background-color: #161b22;
+    color: #c9d1d9;
+    border-top: 1px solid #30363d;
+}
+
+/* Links no rodapé */
+.footer a {
+    color: #0366d6;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.footer a:hover {
+    text-decoration: underline;
+}
+
+/* Links do rodapé no modo escuro */
+body.dark-mode .footer a {
+    color: #58a6ff;
+}
+
+body.dark-mode .footer a:hover {
+    color: #1e90ff;
+}
