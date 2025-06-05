@@ -3,13 +3,12 @@ body {
     margin: 0;
     padding: 0;
     background-color: #ffffff;
-    color: #333;
+    color: #333333;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
     min-height: 100vh;
-    transition: background-color 0.3s, color 0.3s;
 }
 
 .dark-mode {
@@ -17,45 +16,36 @@ body {
     color: #f4f4f4;
 }
 
-button {
-    margin: 10px;
-    padding: 10px 20px;
-    border: none;
-    background-color: #4caf50;
-    color: #fff;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-button:hover {
-    background-color: #45a049;
-}
-
-#theme-toggle {
+.theme-button {
     margin: 20px;
+    padding: 10px 20px;
     background-color: #007bff;
     color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
 }
 
-.section {
+.main-container {
     width: 100%;
     max-width: 600px;
-    margin: 20px;
+    text-align: center;
+}
+
+textarea, pre {
+    width: 100%;
+    margin: 10px 0;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
 }
 
 textarea {
-    width: 100%;
     height: 100px;
-    margin-bottom: 10px;
-    border: 1px solid #ccc;
-    padding: 10px;
 }
 
 pre {
-    width: 100%;
     background-color: #f9f9f9;
-    padding: 10px;
-    border: 1px solid #ccc;
     overflow-x: auto;
 }
 
@@ -63,4 +53,17 @@ pre {
     background-color: #ffecec;
     border: 1px solid #f5c6cb;
     color: #721c24;
+}
+
+button {
+    margin: 5px;
+    padding: 10px 20px;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #45a049;
 }

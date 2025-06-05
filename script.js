@@ -1,75 +1,79 @@
-document.addEventListener("DOMContentLoaded", function () {
-    // Alternar tema
+document.addEventListener("DOMContentLoaded", () => {
     const body = document.body;
     const themeToggle = document.getElementById("theme-toggle");
 
-    if (localStorage.getItem("theme") === "dark") {
-        body.classList.add("dark-mode");
-    }
-
-    window.toggleTheme = function () {
+    themeToggle.addEventListener("click", () => {
         body.classList.toggle("dark-mode");
-        localStorage.setItem("theme", body.classList.contains("dark-mode") ? "dark" : "light");
-    };
-});
-
-// JSON
-function handleJsonFile(event) {
-    const file = event.target.files[0];
-    const reader = new FileReader();
-    reader.onload = () => {
-        document.getElementById("json-textarea").value = reader.result;
-    };
-    reader.readAsText(file);
-    event.target.value = ""; // Limpa o input
-}
-
-function validateJson() {
-    const textarea = document.getElementById("json-textarea");
-    const output = document.getElementById("json-output");
-    try {
-        const json = JSON.parse(textarea.value);
-        output.innerText = JSON.stringify(json, null, 2);
-        output.classList.remove("error");
-    } catch (e) {
-        output.innerText = `Erro: ${e.message}`;
-        output.classList.add("error");
-    }
-}
-
-function clearJson() {
-    document.getElementById("json-textarea").value = "";
-    document.getElementById("json-output").innerText = "";
-}
-
-// Logs
-function handleLogFile(event) {
-    const file = event.target.files[0];
-    const reader = new FileReader();
-    reader.onload = () => {
-        document.getElementById("logs-textarea").value = reader.result;
-    };
-    reader.readAsText(file);
-    event.target.value = ""; // Limpa o input
-}
-
-function analyzeLogs() {
-    const textarea = document.getElementById("logs-textarea");
-    const output = document.getElementById("logs-output");
-    const lines = textarea.value.split("\n");
-    output.innerHTML = ""; // Limpa o output anterior
-
-    lines.forEach((line, index) => {
-        const div = document.createElement("div");
-        div.textContent = `${index + 1}: ${line}`;
-        if (/ERROR|WARN/.test(line)) {
-            div.classList.add("error");
-        }
-        output.appendChild(div);
+        themeToggle.textContent = body.classList.contains("dark-mode") ? "Tema Claro" : "Tema Escuro";
     });
-}
 
-function clearLogs() {
-    document.getElementById("logs-textarea").value = "";
-    document.getElementById("logs-output").innerHTML = "";
-}
+    // JSON Analysis
+    const jsonInput = document.getElementById("json-input");
+    const jsonTextarea = document.getElementById("json-textarea");
+    const jsonOutput = document.getElementById("json-output");
+    const clearJsonButton = document.getElementById("clear-json-button");
+
+    jsonInput.addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = () => {
+                jsonTextarea.value = reader.result;
+            };
+            reader.readAsText(file);
+        }
+        jsonInput.value = "";
+    });
+
+    document.getElementById("validate-json-button").addEventListener("click", () => {
+        try {
+            const parsed = JSON.parse(jsonTextarea.value);
+            jsonOutput.textContent = JSON.stringify(parsed, null, 2);
+            jsonOutput.classList.remove("error");
+        } catch (e) {
+            jsonOutput.textContent = `Erro: ${e.message}`;
+            jsonOutput.classList.add("error");
+        }
+    });
+
+    clearJsonButton.addEventListener("click", () => {
+        jsonTextarea.value = "";
+        jsonOutput.textContent = "";
+    });
+
+    // Log Analysis
+    const logsInput = document.getElementById("logs-input");
+    const logsTextarea = document.getElementById("logs-textarea");
+    const logsOutput = document.getElementById("logs-output");
+    const clearLogsButton = document.getElementById("clear-logs-button");
+
+    logsInput.addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = () => {
+                logsTextarea.value = reader.result;
+            };
+            reader.readAsText(file);
+        }
+        logsInput.value = "";
+    });
+
+    document.getElementById("analyze-logs-button").addEventListener("click", () => {
+        const lines = logsTextarea.value.split("\n").filter(Boolean);
+        logsOutput.innerHTML = "";
+        lines.forEach((line, index) => {
+            const div = document.createElement("div");
+            div.textContent = `${index + 1}: ${line}`;
+            if (/ERROR|WARN/.test(line)) {
+                div.classList.add("error");
+            }
+            logsOutput.appendChild(div);
+        });
+    });
+
+    clearLogsButton.addEventListener("click", () => {
+        logsTextarea.value = "";
+        logsOutput.innerHTML = "";
+    });
+});
