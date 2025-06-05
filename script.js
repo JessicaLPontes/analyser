@@ -9,38 +9,28 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // JSON Analysis
-    const jsonInput = document.getElementById("json-input");
     const jsonTextarea = document.getElementById("json-textarea");
     const jsonOutput = document.getElementById("json-output");
-
-    jsonInput.addEventListener("change", (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = () => {
-                jsonTextarea.value = reader.result;
-            };
-            reader.readAsText(file);
-        }
-        jsonInput.value = ""; // Limpar input
-    });
 
     document.getElementById("validate-json-button").addEventListener("click", () => {
         jsonOutput.innerHTML = ""; // Limpa saída anterior
         const lines = jsonTextarea.value.split("\n");
+        let errosDetectados = [];
+        let jsonValido = true;
+
         try {
             JSON.parse(jsonTextarea.value);
             jsonOutput.textContent = "O JSON está válido!";
             jsonOutput.classList.remove("error");
         } catch (e) {
+            jsonValido = false;
             const { linha, coluna, descricao } = traduzirErroJSON(e.message, lines);
-            jsonOutput.innerHTML = `
-                <div class="error">
-                    <strong>Erro encontrado:</strong> ${descricao}<br>
-                    <strong>Linha:</strong> ${linha}, <strong>Coluna:</strong> ${coluna}
-                </div>
-                <pre>${destacarErroJSON(lines, linha, coluna)}</pre>
-            `;
+            errosDetectados.push({ linha, coluna, descricao });
+        }
+
+        // Destacar erros no JSON e exibir mensagens
+        if (!jsonValido) {
+            jsonOutput.innerHTML = gerarSaidaErros(errosDetectados, lines);
         }
     });
 
@@ -49,11 +39,11 @@ document.addEventListener("DOMContentLoaded", () => {
         jsonOutput.innerHTML = "";
     });
 
-    // Função para traduzir e detalhar o erro do JSON
+    // Função para traduzir erros do JSON
     function traduzirErroJSON(mensagem, linhas) {
         const match = mensagem.match(/Unexpected token (\S+) in JSON at position (\d+)/);
         const descricao = match
-            ? `Token inesperado "${match[1]}". Verifique a sintaxe na linha correspondente.`
+            ? `Token inesperado "${match[1]}". Verifique a sintaxe.`
             : `Erro inesperado. Certifique-se de que o JSON está bem formatado.`;
 
         const posicao = match ? parseInt(match[2], 10) : 0;
@@ -67,9 +57,9 @@ document.addEventListener("DOMContentLoaded", () => {
     function encontrarLinhaErro(posicao, linhas) {
         let acumulador = 0;
         for (let i = 0; i < linhas.length; i++) {
-            acumulador += linhas[i].length + 1; // +1 para considerar a quebra de linha
+            acumulador += linhas[i].length + 1;
             if (acumulador >= posicao) {
-                return i + 1; // Linha encontrada
+                return i + 1;
             }
         }
         return "desconhecida";
@@ -79,7 +69,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function encontrarColunaErro(posicao, linhas) {
         let acumulador = 0;
         for (let i = 0; i < linhas.length; i++) {
-            const linhaLength = linhas[i].length + 1; // +1 para quebra de linha
+            const linhaLength = linhas[i].length + 1;
             if (acumulador + linhaLength > posicao) {
                 return posicao - acumulador + 1;
             }
@@ -88,17 +78,25 @@ document.addEventListener("DOMContentLoaded", () => {
         return "desconhecida";
     }
 
-    // Função para destacar a linha do erro
-    function destacarErroJSON(linhas, linhaErro, colunaErro) {
-        return linhas
-            .map((linha, index) => {
-                if (index + 1 === linhaErro) {
-                    return linha.slice(0, colunaErro - 1) +
-                        `<span class="error-highlight">${linha[colunaErro - 1]}</span>` +
-                        linha.slice(colunaErro);
-                }
-                return linha;
-            })
-            .join("\n");
+    // Função para gerar saída formatada com erros destacados
+    function gerarSaidaErros(erros, linhas) {
+        const saida = erros.map(erro => `
+            <div class="error">
+                <strong>Erro encontrado:</strong> ${erro.descricao}<br>
+                <strong>Linha:</strong> ${erro.linha}, <strong>Coluna:</strong> ${erro.coluna}
+            </div>
+        `);
+
+        const linhasDestacadas = linhas.map((linha, index) => {
+            const erro = erros.find(err => err.linha === index + 1);
+            if (erro) {
+                return linha.slice(0, erro.coluna - 1) +
+                    `<span class="error-highlight">${linha[erro.coluna - 1]}</span>` +
+                    linha.slice(erro.coluna);
+            }
+            return linha;
+        });
+
+        return saida.join("") + `<pre>${linhasDestacadas.join("\n")}</pre>`;
     }
 });
