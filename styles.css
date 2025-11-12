@@ -1,0 +1,296 @@
+/* Estilos Modernos e Limpos (Flat Design) */
+
+:root {
+    --color-primary: #007bff;
+    --color-secondary: #6c757d;
+    --color-success: #28a745;
+    --color-danger: #dc3545;
+    --color-warning: #ffc107;
+    --color-light: #f8f9fa;
+    --color-dark: #343a40;
+    --color-text-light: #333333;
+    --color-text-dark: #f4f4f4;
+    --color-bg-light: #ffffff;
+    --color-bg-section-light: #f9f9f9;
+    --color-bg-dark: #1e1e1e;
+    --color-bg-section-dark: #2a2a2a;
+    --color-border-light: #ccc;
+    --color-border-dark: #444;
+    --shadow-light: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --shadow-dark: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--color-bg-light);
+    color: var(--color-text-light);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+/* Modo Escuro */
+body.dark-mode {
+    background-color: var(--color-bg-dark);
+    color: var(--color-text-dark);
+}
+
+body.dark-mode .section {
+    background-color: var(--color-bg-section-dark);
+    border-color: var(--color-border-dark);
+    box-shadow: var(--shadow-dark);
+}
+
+body.dark-mode textarea,
+body.dark-mode pre,
+body.dark-mode input[type="file"] {
+    background-color: #3a3a3a;
+    color: var(--color-text-dark);
+    border-color: var(--color-border-dark);
+}
+
+body.dark-mode #error-container {
+    background-color: #3d1f1f;
+    border-color: #8b3a3a;
+    color: #ffb3b3;
+}
+
+body.dark-mode label {
+    color: var(--color-text-dark);
+}
+
+/* Cabeçalho */
+h1 {
+    margin-bottom: 20px;
+    font-weight: 300;
+    color: var(--color-primary);
+}
+
+h2 {
+    border-bottom: 2px solid var(--color-primary);
+    padding-bottom: 5px;
+    margin-bottom: 15px;
+    font-weight: 400;
+}
+
+h3 {
+    margin-top: 20px;
+    margin-bottom: 10px;
+    font-weight: 500;
+}
+
+/* Botão de Tema */
+.theme-button {
+    margin: 20px 0;
+    padding: 10px 20px;
+    background-color: var(--color-secondary);
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    border-radius: 5px;
+    transition: background-color 0.3s, transform 0.1s;
+    align-self: flex-end; /* Alinha o botão à direita */
+}
+
+.theme-button:hover {
+    background-color: #5a6268;
+}
+
+/* Layout Principal */
+.main-container {
+    width: 100%;
+    max-width: 1200px;
+    padding: 20px;
+}
+
+.sections {
+    display: flex;
+    gap: 30px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.section {
+    flex: 1;
+    min-width: 300px;
+    border: 1px solid var(--color-border-light);
+    padding: 25px;
+    border-radius: 8px;
+    background-color: var(--color-bg-section-light);
+    box-shadow: var(--shadow-light);
+    transition: background-color 0.3s, border-color 0.3s, box-shadow 0.3s;
+}
+
+/* Formulário e Inputs */
+label {
+    display: block;
+    margin-top: 15px;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+input[type="file"] {
+    display: block;
+    margin-bottom: 10px;
+    padding: 8px;
+    border: 1px solid var(--color-border-light);
+    border-radius: 4px;
+    width: 100%;
+    background-color: var(--color-bg-light);
+    color: var(--color-text-light);
+}
+
+textarea, pre {
+    width: 100%;
+    min-height: 150px;
+    margin: 10px 0;
+    padding: 15px;
+    border: 1px solid var(--color-border-light);
+    border-radius: 4px;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 14px;
+    resize: vertical;
+    background-color: var(--color-bg-light);
+    color: var(--color-text-light);
+    transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+}
+
+pre {
+    min-height: 50px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-x: auto;
+    max-height: 300px;
+    background-color: #f1f1f1; /* Fundo levemente diferente para pre */
+}
+
+body.dark-mode pre {
+    background-color: #3a3a3a;
+}
+
+/* Botões de Ação */
+button {
+    margin: 5px 5px 5px 0;
+    padding: 10px 20px;
+    background-color: var(--color-primary);
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background-color 0.3s, transform 0.1s;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+button:active {
+    transform: scale(0.98);
+}
+
+#validate-json-button {
+    background-color: var(--color-success);
+}
+
+#validate-json-button:hover {
+    background-color: #1e7e34;
+}
+
+#analyze-logs-button {
+    background-color: var(--color-success);
+}
+
+#analyze-logs-button:hover {
+    background-color: #1e7e34;
+}
+
+#clear-json-button, #clear-logs-button {
+    background-color: var(--color-secondary);
+}
+
+#clear-json-button:hover, #clear-logs-button:hover {
+    background-color: #5a6268;
+}
+
+#copy-json-button {
+    background-color: var(--color-primary);
+}
+
+#copy-json-button:hover {
+    background-color: #0056b3;
+}
+
+/* Mensagens de Erro e Saída */
+#error-container {
+    margin-top: 20px;
+    padding: 15px;
+    border: 1px solid var(--color-danger);
+    background-color: #f8d7da;
+    color: #721c24;
+    border-radius: 4px;
+    text-align: left;
+    transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+}
+
+#error-container ul {
+    padding-left: 20px;
+    margin: 10px 0;
+}
+
+/* Mensagem de Sucesso */
+.success-message {
+    margin-top: 20px;
+    padding: 15px;
+    border: 1px solid #c3e6cb;
+    background-color: #d4edda;
+    color: #155724;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+body.dark-mode .success-message {
+    background-color: #1f3d2a;
+    border-color: #387049;
+    color: #c3e6cb;
+}
+
+/* Saída de Logs */
+#logs-output {
+    min-height: 100px;
+    border: 1px solid var(--color-border-light);
+    padding: 15px;
+    border-radius: 4px;
+    margin-top: 10px;
+    background-color: #f1f1f1;
+}
+
+body.dark-mode #logs-output {
+    background-color: #3a3a3a;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .sections {
+        flex-direction: column;
+    }
+    
+    .section {
+        min-width: 100%;
+    }
+
+    .theme-button {
+        align-self: center;
+        margin-top: 0;
+    }
+}
